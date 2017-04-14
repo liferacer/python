@@ -23,7 +23,7 @@ def grab_initial_state_data():
         df = quandl.get(query, authtoken='SCN2zdveEYwG1B82t6B1')
         df.rename(columns={'Value': abbv}, inplace=True)
         df[abbv] = (df[abbv]-df[abbv][0]) / df[abbv][0] * 100.0
-        #print(df.head())
+        print(df.head())
         if main_df.empty:
             main_df = df
         else:
@@ -47,45 +47,14 @@ def mortgage_30y():
     df=df.resample('M').mean()
     return df
 
-def sp500_data():
-    df = quandl.get("YAHOO/INDEX_GSPC", trim_start="1975-01-01", authtoken='SCN2zdveEYwG1B82t6B1')
-    df["Adjusted Close"] = (df["Adjusted Close"]-df["Adjusted Close"][0]) / df["Adjusted Close"][0] * 100.0
-    df=df.resample('M').mean()
-    df.rename(columns={'Adjusted Close':'sp500'}, inplace=True)
-    #df = df['sp500']
-    return df
-
-def gdp_data():
-    df = quandl.get("BCB/4385", trim_start="1975-01-01", authtoken='SCN2zdveEYwG1B82t6B1')
-    df["Value"] = (df["Value"]-df["Value"][0]) / df["Value"][0] * 100.0
-    df=df.resample('M').mean()
-    df.rename(columns={'Value':'GDP'}, inplace=True)
-    #df = df['GDP']
-    return df
-
-def us_unemployment():
-    df = quandl.get("ECPI/JOB_G", trim_start="1975-01-01", authtoken='SCN2zdveEYwG1B82t6B1')
-    df["Unemployment Rate"] = (df["Unemployment Rate"]-df["Unemployment Rate"][0]) / df["Unemployment Rate"][0] * 100.0
-    #df=df.resample('1D').mean()
-    df=df.resample('M').mean()
-    return df
-
-
 
 grab_initial_state_data() 
 HPI_data = pd.read_pickle('fiddy_states.pickle')
 m30 = mortgage_30y()
-sp500 = sp500_data()
-gdp = gdp_data()
 HPI_Bench = HPI_Benchmark()
-unemployment = us_unemployment()
-#m30.columns=['M30']
-HPI = HPI_Bench.join([m30,sp500,gdp,unemployment])
+HPI = HPI_Bench.join(m30,)
 HPI.dropna(inplace=True)
 print(HPI.corr())
-
-HPI.to_pickle("HPI.picke")
-
 
 
 
